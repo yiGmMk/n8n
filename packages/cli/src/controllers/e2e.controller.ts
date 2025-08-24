@@ -108,6 +108,7 @@ export class E2EController {
 		[LICENSE_FEATURES.API_KEY_SCOPES]: false,
 		[LICENSE_FEATURES.OIDC]: false,
 		[LICENSE_FEATURES.MFA_ENFORCEMENT]: false,
+		[LICENSE_FEATURES.WORKFLOW_DIFFS]: false,
 	};
 
 	private static readonly numericFeaturesDefaults: Record<NumericLicenseFeature, number> = {
@@ -304,7 +305,9 @@ export class E2EController {
 				id: uuid(),
 				...owner,
 				password: await this.passwordUtility.hash(owner.password),
-				role: 'global:owner',
+				role: {
+					slug: 'global:owner',
+				},
 			}),
 		];
 
@@ -313,7 +316,9 @@ export class E2EController {
 				id: uuid(),
 				...admin,
 				password: await this.passwordUtility.hash(admin.password),
-				role: 'global:admin',
+				role: {
+					slug: 'global:admin',
+				},
 			}),
 		);
 
@@ -323,7 +328,9 @@ export class E2EController {
 					id: uuid(),
 					...payload,
 					password: await this.passwordUtility.hash(password),
-					role: 'global:member',
+					role: {
+						slug: 'global:member',
+					},
 				}),
 			);
 		}

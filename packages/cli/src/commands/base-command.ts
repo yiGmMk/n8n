@@ -33,6 +33,7 @@ import { TelemetryEventRelay } from '@/events/relays/telemetry.event-relay';
 import { ExternalHooks } from '@/external-hooks';
 import { License } from '@/license';
 import { LoadNodesAndCredentials } from '@/load-nodes-and-credentials';
+import { CommunityPackagesConfig } from '@/modules/community-packages/community-packages.config';
 import { NodeTypes } from '@/node-types';
 import { PostHogClient } from '@/posthog';
 import { ShutdownService } from '@/shutdown/shutdown.service';
@@ -89,6 +90,7 @@ export abstract class BaseCommand<F = never> {
 			release: `n8n@${N8N_VERSION}`,
 			serverName: deploymentName,
 			releaseDate: N8N_RELEASE_DATE,
+			withEventLoopBlockDetection: true,
 		});
 
 		process.once('SIGTERM', this.onTerminationSignal('SIGTERM'));
@@ -132,9 +134,12 @@ export abstract class BaseCommand<F = never> {
 			);
 		}
 
-		const { communityPackages } = this.globalConfig.nodes;
-		if (communityPackages.enabled && this.needsCommunityPackages) {
-			const { CommunityPackagesService } = await import('@/services/community-packages.service');
+		// @TODO: Move to community-packages module
+		const communityPackagesConfig = Container.get(CommunityPackagesConfig);
+		if (communityPackagesConfig.enabled && this.needsCommunityPackages) {
+			const { CommunityPackagesService } = await import(
+				'@/modules/community-packages/community-packages.service'
+			);
 			await Container.get(CommunityPackagesService).init();
 		}
 
